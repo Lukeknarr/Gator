@@ -58,11 +58,13 @@ premium_service = PremiumService()
 
 @app.get("/")
 async def root():
-    return {"message": "Gator API - Personalized Media Discovery Engine"}
+    """Simple root endpoint for basic health checks"""
+    return {"message": "Gator API - Personalized Media Discovery Engine", "status": "running"}
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "message": "Gator backend is live!"}
+    """Simple health check that doesn't depend on database"""
+    return {"status": "healthy", "message": "Gator backend is live!", "timestamp": "2024-07-31T23:57:00Z"}
 
 @app.post("/register", response_model=UserResponse)
 async def register(user: UserCreate, db: Session = Depends(get_db)):
