@@ -9,20 +9,20 @@ from datetime import datetime, timedelta
 import jwt
 from passlib.context import CryptContext
 
-from .database import get_db, engine
-from .models import Base, User, UserInterest, Content, ContentTag, UserInteraction
-from .schemas import (
+from database import get_db, engine
+from models import Base, User, UserInterest, Content, ContentTag, UserInteraction
+from schemas import (
     UserCreate, UserResponse, UserLogin, Token, 
     InterestCreate, InterestResponse, ContentResponse,
     RecommendationRequest, RecommendationResponse,
     UserOnboarding, FeedbackRequest
 )
-from .services.auth_service import AuthService
-from .services.interest_service import InterestService
-from .services.recommendation_service import RecommendationService
-from .services.content_service import ContentService
-from .services.summarization_service import AISummarizationService
-from .services.premium_service import PremiumService
+from services.auth_service import AuthService
+from services.interest_service import InterestService
+from services.recommendation_service import RecommendationService
+from services.content_service import ContentService
+from services.summarization_service import AISummarizationService
+from services.premium_service import PremiumService
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
