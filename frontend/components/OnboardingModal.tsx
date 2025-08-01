@@ -208,7 +208,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                         className={`p-3 rounded-lg border-2 text-left transition-all ${
                           selectedInterests.includes(interest)
                             ? 'border-primary-500 bg-primary-50 text-primary-700'
-                            : 'border-secondary-200 hover:border-primary-300'
+                            : 'border-secondary-200 hover:border-primary-300 text-gray-900'
                         }`}
                       >
                         {interest}
@@ -282,7 +282,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                         className={`p-4 rounded-lg border-2 text-center transition-all ${
                           readingPreferences.includes(preference.id)
                             ? 'border-primary-500 bg-primary-50 text-primary-700'
-                            : 'border-secondary-200 hover:border-primary-300'
+                            : 'border-secondary-200 hover:border-primary-300 text-gray-900'
                         }`}
                       >
                         <div className="text-2xl mb-2">{preference.icon}</div>
@@ -321,7 +321,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                             className={`w-full p-3 rounded-lg border-2 text-left transition-all ${
                               explorationLevel === level.id
                                 ? 'border-primary-500 bg-primary-50 text-primary-700'
-                                : 'border-secondary-200 hover:border-primary-300'
+                                : 'border-secondary-200 hover:border-primary-300 text-gray-900'
                             }`}
                           >
                             <div className="font-medium">{level.label}</div>
