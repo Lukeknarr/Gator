@@ -18,6 +18,8 @@ export default function Home() {
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [showTOS, setShowTOS] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
 
   // Fetch user data when authenticated
   const { data: interests, isLoading: interestsLoading } = useQuery({
@@ -224,7 +226,23 @@ export default function Home() {
 
         {/* Footer */}
         <div className="mt-8 text-center text-sm text-gray-500">
-          <p>By continuing, you agree to Gator's Terms of Service and Privacy Policy.</p>
+          <p>
+            By continuing, you agree to Gator's{' '}
+            <button 
+              onClick={() => setShowTOS(true)}
+              className="text-blue-600 hover:text-blue-700 underline"
+            >
+              Terms of Service
+            </button>
+            {' '}and{' '}
+            <button 
+              onClick={() => setShowPrivacy(true)}
+              className="text-blue-600 hover:text-blue-700 underline"
+            >
+              Privacy Policy
+            </button>
+            .
+          </p>
         </div>
       </div>
 
@@ -256,6 +274,121 @@ export default function Home() {
           isOpen={showForgotPassword}
           onClose={() => setShowForgotPassword(false)}
         />
+      )}
+
+      {/* Terms of Service Modal */}
+      {showTOS && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-gray-900">Terms of Service</h2>
+                <button
+                  onClick={() => setShowTOS(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div className="p-6">
+              <div className="prose max-w-none text-sm">
+                <h3 className="text-lg font-semibold mb-4">GATOR TECHNOLOGIES, INC.</h3>
+                <h4 className="text-md font-semibold mb-2">TERMS OF SERVICE AND PRIVACY POLICY</h4>
+                <p className="mb-4">Effective Date: August 1, 2024</p>
+                
+                <h5 className="font-semibold mt-6 mb-2">1. AGREEMENT TO TERMS</h5>
+                <p className="mb-4">These Terms of Service ("Terms") constitute a legally binding agreement made between you ("User," "you") and Gator Technologies, Inc. ("Gator," "Company," "we," "our," or "us") concerning your access to and use of the Gator website, platform, and related services (collectively, the "Service"). By creating an account, accessing, or using our Service, you agree to be bound by these Terms and our Privacy Policy.</p>
+                
+                <h5 className="font-semibold mt-6 mb-2">2. ELIGIBILITY</h5>
+                <p className="mb-4">You represent and warrant that you are at least 16 years of age (or the legal age of digital consent in your jurisdiction) and have the authority to enter into these Terms.</p>
+                
+                <h5 className="font-semibold mt-6 mb-2">3. SERVICE DESCRIPTION</h5>
+                <p className="mb-4">Gator provides a media discovery and recommendation platform that aggregates information about your interests and media consumption patterns to deliver personalized recommendations across multiple content sources.</p>
+                
+                <h5 className="font-semibold mt-6 mb-2">4. ACCOUNT REGISTRATION AND SECURITY</h5>
+                <p className="mb-4">You are responsible for maintaining the confidentiality of your login credentials and for all activities under your account. You must notify Gator immediately of any unauthorized access.</p>
+                
+                <h5 className="font-semibold mt-6 mb-2">5. USER CONTENT AND DATA</h5>
+                <p className="mb-4">You retain ownership of the data and content you submit to the Service. By using the Service, you grant Gator a non-exclusive, worldwide, royalty-free license to process, analyze, and display User Content solely to provide and improve the Service.</p>
+                
+                <h5 className="font-semibold mt-6 mb-2">6. ACCEPTABLE USE</h5>
+                <p className="mb-4">You agree not to access the Service using automated tools, reverse-engineer any part of the Service, or use the Service to violate any law or infringe the rights of others.</p>
+                
+                <h5 className="font-semibold mt-6 mb-2">7. SERVICE AVAILABILITY</h5>
+                <p className="mb-4">The Service is provided "AS IS" and "AS AVAILABLE" without warranties of any kind, whether express or implied.</p>
+                
+                <h5 className="font-semibold mt-6 mb-2">8. LIMITATION OF LIABILITY</h5>
+                <p className="mb-4">To the maximum extent permitted by law, Gator shall not be liable for indirect, incidental, consequential, or punitive damages. Total liability shall not exceed $100 USD.</p>
+                
+                <h5 className="font-semibold mt-6 mb-2">9. CONTACT INFORMATION</h5>
+                <p className="mb-4">Email: legal@gatorapp.com</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Privacy Policy Modal */}
+      {showPrivacy && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-gray-900">Privacy Policy</h2>
+                <button
+                  onClick={() => setShowPrivacy(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div className="p-6">
+              <div className="prose max-w-none text-sm">
+                <h3 className="text-lg font-semibold mb-4">PRIVACY POLICY</h3>
+                <p className="mb-4">Effective Date: August 1, 2024</p>
+                
+                <h5 className="font-semibold mt-6 mb-2">1. INFORMATION WE COLLECT</h5>
+                <ul className="list-disc pl-6 mb-4">
+                  <li>Personal Information: Email, name, login credentials, account preferences</li>
+                  <li>Usage Data: Pages viewed, interests tracked, recommendation interactions</li>
+                  <li>Third-party Integrations: Data pulled from connected services with your explicit consent</li>
+                </ul>
+                
+                <h5 className="font-semibold mt-6 mb-2">2. HOW WE USE YOUR INFORMATION</h5>
+                <ul className="list-disc pl-6 mb-4">
+                  <li>To provide and improve the Service</li>
+                  <li>To personalize content recommendations</li>
+                  <li>For analytics, debugging, and research purposes</li>
+                  <li>To comply with legal obligations</li>
+                </ul>
+                
+                <h5 className="font-semibold mt-6 mb-2">3. DATA SHARING</h5>
+                <p className="mb-4">We do not sell personal data. We may share aggregated, anonymized analytics with partners and may share information with vendors, service providers, and legal authorities as required.</p>
+                
+                <h5 className="font-semibold mt-6 mb-2">4. DATA STORAGE AND SECURITY</h5>
+                <p className="mb-4">Data is stored securely in encrypted databases. Access is limited to authorized personnel only. No system is 100% secure; you use the Service at your own risk.</p>
+                
+                <h5 className="font-semibold mt-6 mb-2">5. USER RIGHTS (GDPR / CCPA)</h5>
+                <p className="mb-4">You have the right to access, rectify, or delete your personal data. You may opt-out of certain processing or marketing communications. Requests can be made to privacy@gatorapp.com.</p>
+                
+                <h5 className="font-semibold mt-6 mb-2">6. COOKIES AND TRACKING</h5>
+                <p className="mb-4">We use cookies for essential functionality and analytics. You may disable cookies but some features may not work properly.</p>
+                
+                <h5 className="font-semibold mt-6 mb-2">7. DATA RETENTION</h5>
+                <p className="mb-4">We retain user data as long as your account is active or as necessary to provide the Service. Data may be retained longer to comply with legal obligations.</p>
+                
+                <h5 className="font-semibold mt-6 mb-2">8. CONTACT</h5>
+                <p className="mb-4">privacy@gatorapp.com</p>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
