@@ -9,6 +9,9 @@ load_dotenv()
 
 # PostgreSQL Configuration
 POSTGRES_URL = os.getenv("DATABASE_URL", os.getenv("POSTGRES_URL", "postgresql://gator:gator123@localhost:5432/gator_db"))
+print(f"🔍 DATABASE_URL from env: {os.getenv('DATABASE_URL', 'NOT_SET')}")
+print(f"🔍 POSTGRES_URL from env: {os.getenv('POSTGRES_URL', 'NOT_SET')}")
+print(f"🔍 Using POSTGRES_URL: {POSTGRES_URL}")
 engine = None
 SessionLocal = None
 Base = declarative_base()
