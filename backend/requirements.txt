@@ -12,7 +12,7 @@ requests==2.31.0
 feedparser==6.0.10
 beautifulsoup4==4.12.2
 lxml==4.9.3
-pydantic==2.5.0
+pydantic[email]==2.5.0
 alembic==1.12.1
 redis==5.0.1
 pytest==7.4.3
