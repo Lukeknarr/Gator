@@ -85,7 +85,7 @@ async def root():
 @app.get("/health")
 async def health_check():
     """Simple health check that doesn't depend on database"""
-    return {"status": "healthy", "message": "Gator backend is live!", "timestamp": "2024-08-01T22:30:00Z", "version": "NEW_CODE_DEPLOYED"}
+    return {"status": "healthy", "message": "Gator backend is live!", "timestamp": "2024-08-01T22:30:00Z", "version": "DEPLOY_TEST_999"}
 
 @app.get("/healthcheck")
 async def railway_healthcheck():
