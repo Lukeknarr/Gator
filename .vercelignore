@@ -1,0 +1,26 @@
+# Ignore backend files
+backend/
+data_ingestion/
+recommendation_engine/
+database/
+scripts/
+docs/
+*.py
+*.pyc
+__pycache__/
+.env
+.env.local
+.env.example
+
+# Ignore git and other files
+.git/
+.gitignore
+README.md
+QUICK_DEPLOY.md
+DEPLOYMENT.md
+railway.toml
+backend/railway.toml
+backend/railway.json
+
+# Only include frontend
+!frontend/ 
