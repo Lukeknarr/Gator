@@ -7,7 +7,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'https://gator.up.railway.app/:path*',
+        destination: 'https://gator-production.up.railway.app/:path*',
       },
     ];
   },
