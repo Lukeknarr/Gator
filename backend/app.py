@@ -23,6 +23,7 @@ from services.recommendation_service import RecommendationService
 from services.content_service import ContentService
 from services.summarization_service import AISummarizationService
 from services.premium_service import PremiumService
+from services.connection_map_service import connection_map_service
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -202,10 +203,7 @@ async def get_novel_connections(
     user_interests = interest_service.get_user_interests(db, current_user.id)
     content_data = content_service.get_all_content(db)
     
-    from .recommendation_engine.connection_map import CrossInterestConnectionMap
-    connection_map = CrossInterestConnectionMap()
-    
-    return connection_map.find_novel_connections(user_interests, content_data)
+    return connection_map_service.find_novel_connections(user_interests, content_data)
 
 @app.get("/connections/exploration")
 async def get_exploration_paths(
@@ -217,10 +215,7 @@ async def get_exploration_paths(
     user_interests = interest_service.get_user_interests(db, current_user.id)
     content_data = content_service.get_all_content(db)
     
-    from .recommendation_engine.connection_map import CrossInterestConnectionMap
-    connection_map = CrossInterestConnectionMap()
-    
-    return connection_map.suggest_exploration_paths(user_interests, content_data, exploration_level)
+    return connection_map_service.suggest_exploration_paths(user_interests, content_data, exploration_level)
 
 # Premium endpoints
 @app.get("/premium/status")

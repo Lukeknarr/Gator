@@ -26,8 +26,8 @@ class PremiumService:
         self.scraping_delay = 1  # Delay between requests
         self.max_depth = 3  # Maximum scraping depth
         self.academic_sources = [
-            'arxiv.org', 'scholar.google.com', 'researchgate.net',
-            'academia.edu', 'semanticscholar.org', 'pubmed.ncbi.nlm.nih.gov'
+            'mock-arxiv.org', 'mock-scholar.google.com', 'mock-researchgate.net',
+            'mock-academia.edu', 'mock-semanticscholar.org', 'mock-pubmed.ncbi.nlm.nih.gov'
         ]
         self.expert_curators = {
             'technology': ['tech_expert_1', 'tech_expert_2'],
@@ -188,19 +188,16 @@ class PremiumService:
         return list(set(links))  # Remove duplicates
     
     def search_academic_papers(self, query: str, max_results: int = 20) -> List[Dict[str, Any]]:
-        """Search academic papers using multiple sources"""
+        """Search academic papers using mock implementation"""
         try:
-            papers = []
-            
-            # Mock implementation - in production, you would use actual APIs
-            # For now, return sample papers based on the query
-            sample_papers = [
+            # Mock implementation - no external dependencies
+            papers = [
                 {
                     "title": f"Research on {query}",
                     "authors": ["Dr. Smith", "Prof. Johnson"],
                     "abstract": f"This paper explores various aspects of {query} and its implications.",
-                    "source": "arxiv.org",
-                    "url": f"https://arxiv.org/abs/2023.{hash(query) % 1000000:06d}",
+                    "source": "mock-arxiv.org",
+                    "url": f"https://mock-arxiv.org/abs/2023.{hash(query) % 1000000:06d}",
                     "published_date": "2023-12-01",
                     "citations": 15
                 },
@@ -208,14 +205,21 @@ class PremiumService:
                     "title": f"Advanced {query} Analysis",
                     "authors": ["Dr. Brown", "Dr. Davis"],
                     "abstract": f"An in-depth analysis of {query} with novel findings.",
-                    "source": "scholar.google.com",
-                    "url": f"https://scholar.google.com/scholar?q={query}",
+                    "source": "mock-scholar.google.com",
+                    "url": f"https://mock-scholar.google.com/scholar?q={query}",
                     "published_date": "2023-11-15",
                     "citations": 8
+                },
+                {
+                    "title": f"Comprehensive Study of {query}",
+                    "authors": ["Dr. Wilson", "Dr. Garcia"],
+                    "abstract": f"A comprehensive study examining the latest developments in {query}.",
+                    "source": "mock-researchgate.net",
+                    "url": f"https://mock-researchgate.net/publication/{hash(query) % 1000000:06d}",
+                    "published_date": "2023-10-20",
+                    "citations": 12
                 }
             ]
-            
-            papers.extend(sample_papers)
             
             # Deduplicate and limit results
             unique_papers = self._deduplicate_papers(papers)
@@ -234,8 +238,8 @@ class PremiumService:
                     "title": f"arXiv: {query} Research",
                     "authors": ["Author 1", "Author 2"],
                     "abstract": f"arXiv paper about {query}",
-                    "source": "arxiv.org",
-                    "url": f"https://arxiv.org/abs/2023.{hash(query) % 1000000:06d}",
+                    "source": "mock-arxiv.org",
+                    "url": f"https://mock-arxiv.org/abs/2023.{hash(query) % 1000000:06d}",
                     "published_date": "2023-12-01",
                     "citations": 10
                 }
@@ -255,8 +259,8 @@ class PremiumService:
                     "title": f"Scholar: {query} Study",
                     "authors": ["Researcher A", "Researcher B"],
                     "abstract": f"Google Scholar paper about {query}",
-                    "source": "scholar.google.com",
-                    "url": f"https://scholar.google.com/scholar?q={query}",
+                    "source": "mock-scholar.google.com",
+                    "url": f"https://mock-scholar.google.com/scholar?q={query}",
                     "published_date": "2023-11-01",
                     "citations": 5
                 }
