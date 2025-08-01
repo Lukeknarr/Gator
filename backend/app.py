@@ -51,7 +51,7 @@ async def startup_event():
     print("✅ Gator backend startup complete!")
 
 # CORS middleware
-cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:3001").split(",")
+cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:3001,https://gator-cqsf.vercel.app").split(",")
 # Add Railway healthcheck hostname
 cors_origins.append("https://healthcheck.railway.app")
 
