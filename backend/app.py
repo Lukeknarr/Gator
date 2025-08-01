@@ -34,15 +34,21 @@ app = FastAPI(
 @app.on_event("startup")
 async def startup_event():
     """Initialize database tables on startup"""
+    print("🚀 Gator backend starting up...")
+    print(f"Environment: {os.getenv('ENVIRONMENT', 'development')}")
+    print(f"Port: {os.getenv('PORT', '8000')}")
+    
     try:
         engine = get_engine()
         if engine:
             Base.metadata.create_all(bind=engine)
-            print("Database tables created successfully")
+            print("✅ Database tables created successfully")
         else:
-            print("Warning: Database not available, skipping table creation")
+            print("⚠️  Warning: Database not available, skipping table creation")
     except Exception as e:
-        print(f"Warning: Could not create database tables: {e}")
+        print(f"⚠️  Warning: Could not create database tables: {e}")
+    
+    print("✅ Gator backend startup complete!")
 
 # CORS middleware
 cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:3001").split(",")
@@ -69,12 +75,17 @@ premium_service = PremiumService()
 @app.get("/")
 async def root():
     """Simple root endpoint for basic health checks"""
-    return {"message": "Gator API - Personalized Media Discovery Engine", "status": "running"}
+    return {"message": "Gator API - Personalized Media Discovery Engine", "status": "running", "health": "ok"}
 
 @app.get("/health")
 async def health_check():
     """Simple health check that doesn't depend on database"""
     return {"status": "healthy", "message": "Gator backend is live!", "timestamp": "2024-07-31T23:57:00Z"}
+
+@app.get("/healthcheck")
+async def railway_healthcheck():
+    """Dedicated healthcheck endpoint for Railway"""
+    return {"status": "ok", "service": "gator-backend"}
 
 @app.get("/health/db")
 async def database_health_check():
