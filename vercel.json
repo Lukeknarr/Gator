@@ -4,11 +4,5 @@
   "outputDirectory": "frontend/.next",
   "env": {
     "NEXT_PUBLIC_API_URL": "https://gator-api.up.railway.app"
-  },
-  "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "https://gator-api.up.railway.app/:path*"
-    }
-  ]
+  }
 } 
