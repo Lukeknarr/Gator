@@ -110,24 +110,41 @@ async def database_health_check():
 @app.post("/register", response_model=UserResponse)
 async def register(user: UserCreate, db: Session = Depends(get_db)):
     """Register a new user"""
-    # Mock registration for demo purposes (works without database)
-    return UserResponse(
-        id=1,
-        email=user.email,
-        username=user.username,
-        is_active=True,
-        created_at=datetime.now(),
-        updated_at=datetime.now()
-    )
+    try:
+        # Use real auth service to register user
+        db_user = auth_service.register_user(db, user)
+        return UserResponse(
+            id=db_user.id,
+            email=db_user.email,
+            username=db_user.username,
+            is_active=db_user.is_active,
+            created_at=db_user.created_at,
+            updated_at=db_user.updated_at
+        )
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(f"Registration error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Registration failed. Please try again."
+        )
 
 @app.post("/login", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     """Login user and return access token"""
-    # Mock login for demo purposes (works without database)
-    return Token(
-        access_token="mock_token_12345",
-        token_type="bearer"
-    )
+    try:
+        # Use real auth service to authenticate user
+        token = auth_service.login_user(db, form_data.username, form_data.password)
+        return token
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(f"Login error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Login failed. Please try again."
+        )
 
 @app.post("/onboarding", response_model=UserResponse)
 async def user_onboarding(
@@ -202,7 +219,14 @@ async def get_user_profile(
     current_user: User = Depends(auth_service.get_current_user)
 ):
     """Get current user profile"""
-    return current_user
+    return UserResponse(
+        id=current_user.id,
+        email=current_user.email,
+        username=current_user.username,
+        is_active=current_user.is_active,
+        created_at=current_user.created_at,
+        updated_at=current_user.updated_at
+    )
 
 @app.post("/user/export")
 async def export_user_data(
