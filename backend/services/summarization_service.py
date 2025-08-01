@@ -1,9 +1,8 @@
-from transformers import pipeline, AutoTokenizer, AutoModelForSeq2SeqGeneration
-import torch
 from typing import List, Dict, Any, Optional
 import re
-from nltk.tokenize import sent_tokenize
+from nltk.tokenize import sent_tokenize, word_tokenize
 import nltk
+from textblob import TextBlob
 from sqlalchemy.orm import Session
 from models import Content
 from database import get_db
@@ -28,37 +27,17 @@ class AISummarizationService:
             nltk.download('punkt')
     
     def load_models(self):
-        """Load AI models for summarization"""
+        """Load basic NLP models for summarization"""
         if not self.summarizer:
-            print("Loading summarization models...")
+            print("Loading basic NLP models...")
             
-            # Abstractive summarization (T5-based)
-            self.summarizer = pipeline(
-                "summarization",
-                model="facebook/bart-large-cnn",
-                tokenizer="facebook/bart-large-cnn",
-                device=0 if torch.cuda.is_available() else -1
-            )
-            
-            # Extractive summarization
-            self.extractive_summarizer = pipeline(
-                "summarization",
-                model="sshleifer/distilbart-cnn-12-6",
-                device=0 if torch.cuda.is_available() else -1
-            )
-            
-            # Keyword extraction
-            self.keyword_extractor = pipeline(
-                "token-classification",
-                model="dslim/bert-base-NER",
-                aggregation_strategy="simple"
-            )
-            
-            # Sentiment analysis
-            self.sentiment_analyzer = pipeline(
-                "sentiment-analysis",
-                model="cardiffnlp/twitter-roberta-base-sentiment-latest"
-            )
+            # For now, we'll use simple text processing
+            # In a production environment, you might want to use external APIs
+            # or deploy lightweight models separately
+            self.summarizer = "basic"
+            self.extractive_summarizer = "basic"
+            self.keyword_extractor = "basic"
+            self.sentiment_analyzer = "basic"
     
     def summarize_content(self, content: Content, summary_type: str = "abstractive") -> Dict[str, Any]:
         """Generate summary for content"""
@@ -140,45 +119,69 @@ class AISummarizationService:
         return text.strip()
     
     def generate_abstractive_summary(self, text: str, max_length: int = 150) -> str:
-        """Generate abstractive summary using BART"""
+        """Generate abstractive summary using simple text processing"""
         try:
-            # Split text into chunks if too long
-            chunks = self.split_text_into_chunks(text, max_length=1024)
+            # Use TextBlob for basic text analysis
+            blob = TextBlob(text)
             
-            summaries = []
-            for chunk in chunks:
-                if len(chunk.split()) > 50:  # Only summarize if chunk is substantial
-                    result = self.summarizer(chunk, max_length=max_length, min_length=30, do_sample=False)
-                    summaries.append(result[0]['summary_text'])
+            # Get sentences
+            sentences = blob.sentences
             
-            # Combine summaries
-            if summaries:
-                combined_summary = " ".join(summaries)
-                # Generate final summary if combined is too long
-                if len(combined_summary.split()) > max_length:
-                    final_result = self.summarizer(combined_summary, max_length=max_length, min_length=30, do_sample=False)
-                    return final_result[0]['summary_text']
-                else:
-                    return combined_summary
-            else:
-                return text[:max_length] + "..." if len(text) > max_length else text
-                
+            if not sentences:
+                return self.generate_fallback_summary(text, max_length)
+            
+            # Take first few sentences as summary
+            summary_sentences = sentences[:3]
+            summary = " ".join([str(sentence) for sentence in summary_sentences])
+            
+            # Truncate if too long
+            if len(summary) > max_length:
+                summary = summary[:max_length-3] + "..."
+            
+            return summary
+            
         except Exception as e:
             print(f"Error generating abstractive summary: {e}")
             return self.generate_fallback_summary(text, max_length)
     
     def generate_extractive_summary(self, text: str, max_length: int = 150) -> str:
-        """Generate extractive summary"""
+        """Generate extractive summary using sentence scoring"""
         try:
             # Split into sentences
             sentences = sent_tokenize(text)
             
-            if len(sentences) <= 3:
-                return text
+            if not sentences:
+                return self.generate_fallback_summary(text, max_length)
             
-            # Use extractive summarization
-            result = self.extractive_summarizer(text, max_length=max_length, min_length=30, do_sample=False)
-            return result[0]['summary_text']
+            # Simple scoring based on sentence length and word frequency
+            sentence_scores = []
+            word_freq = {}
+            
+            # Count word frequency
+            for sentence in sentences:
+                words = word_tokenize(sentence.lower())
+                for word in words:
+                    if word.isalpha():
+                        word_freq[word] = word_freq.get(word, 0) + 1
+            
+            # Score sentences
+            for sentence in sentences:
+                words = word_tokenize(sentence.lower())
+                score = sum(word_freq.get(word, 0) for word in words if word.isalpha())
+                score += len(words) * 0.1  # Bonus for longer sentences
+                sentence_scores.append((sentence, score))
+            
+            # Sort by score and take top sentences
+            sentence_scores.sort(key=lambda x: x[1], reverse=True)
+            top_sentences = sentence_scores[:2]
+            
+            summary = " ".join([sentence for sentence, _ in top_sentences])
+            
+            # Truncate if too long
+            if len(summary) > max_length:
+                summary = summary[:max_length-3] + "..."
+            
+            return summary
             
         except Exception as e:
             print(f"Error generating extractive summary: {e}")
@@ -187,16 +190,19 @@ class AISummarizationService:
     def generate_hybrid_summary(self, text: str, max_length: int = 150) -> str:
         """Generate hybrid summary combining extractive and abstractive approaches"""
         try:
-            # First, generate extractive summary
-            extractive_summary = self.generate_extractive_summary(text, max_length=max_length//2)
+            # Get both types of summaries
+            extractive = self.generate_extractive_summary(text, max_length // 2)
+            abstractive = self.generate_abstractive_summary(text, max_length // 2)
             
-            # Then, generate abstractive summary from extractive summary
-            if len(extractive_summary.split()) > 20:
-                result = self.summarizer(extractive_summary, max_length=max_length, min_length=30, do_sample=False)
-                return result[0]['summary_text']
-            else:
-                return extractive_summary
-                
+            # Combine them
+            combined = f"{extractive} {abstractive}"
+            
+            # Truncate if too long
+            if len(combined) > max_length:
+                combined = combined[:max_length-3] + "..."
+            
+            return combined
+            
         except Exception as e:
             print(f"Error generating hybrid summary: {e}")
             return self.generate_fallback_summary(text, max_length)
@@ -273,63 +279,73 @@ class AISummarizationService:
         return insights
     
     def extract_keywords(self, text: str) -> List[str]:
-        """Extract keywords from text"""
+        """Extract keywords from text using TextBlob"""
         try:
-            # Use NER for keyword extraction
-            entities = self.keyword_extractor(text)
+            blob = TextBlob(text)
             
-            # Filter for relevant entities
+            # Get noun phrases and important words
             keywords = []
-            for entity in entities:
-                if entity['score'] > 0.7:  # High confidence threshold
-                    keywords.append(entity['word'])
+            
+            # Add noun phrases
+            keywords.extend([str(phrase) for phrase in blob.noun_phrases])
+            
+            # Add words with high frequency
+            words = blob.words
+            word_freq = {}
+            for word in words:
+                if word.isalpha() and len(word) > 3:
+                    word_freq[word.lower()] = word_freq.get(word.lower(), 0) + 1
+            
+            # Get top words by frequency
+            sorted_words = sorted(word_freq.items(), key=lambda x: x[1], reverse=True)
+            top_words = [word for word, freq in sorted_words[:10]]
+            keywords.extend(top_words)
             
             # Remove duplicates and limit
             unique_keywords = list(set(keywords))
-            return unique_keywords[:10]  # Top 10 keywords
+            return unique_keywords[:15]
             
         except Exception as e:
             print(f"Error extracting keywords: {e}")
             return []
     
     def analyze_sentiment(self, text: str) -> Dict[str, Any]:
-        """Analyze sentiment of text"""
+        """Analyze sentiment using TextBlob"""
         try:
-            # Split text into chunks for analysis
-            sentences = sent_tokenize(text)
+            blob = TextBlob(text)
             
-            if len(sentences) > 10:
-                # Sample sentences for analysis
-                sample_sentences = sentences[:10]
+            # Get sentiment polarity (-1 to 1)
+            polarity = blob.sentiment.polarity
+            
+            # Get sentiment subjectivity (0 to 1)
+            subjectivity = blob.sentiment.subjectivity
+            
+            # Determine sentiment label
+            if polarity > 0.1:
+                sentiment = "positive"
+            elif polarity < -0.1:
+                sentiment = "negative"
             else:
-                sample_sentences = sentences
+                sentiment = "neutral"
             
-            sentiments = []
-            for sentence in sample_sentences:
-                if len(sentence.split()) > 3:  # Only analyze substantial sentences
-                    result = self.sentiment_analyzer(sentence)
-                    sentiments.append(result[0])
+            # Calculate confidence
+            confidence = abs(polarity)
             
-            if sentiments:
-                # Calculate average sentiment
-                positive_count = sum(1 for s in sentiments if s['label'] == 'POSITIVE')
-                negative_count = sum(1 for s in sentiments if s['label'] == 'NEGATIVE')
-                neutral_count = sum(1 for s in sentiments if s['label'] == 'NEUTRAL')
-                
-                total = len(sentiments)
-                return {
-                    'overall_sentiment': 'positive' if positive_count > negative_count else 'negative' if negative_count > positive_count else 'neutral',
-                    'positive_ratio': positive_count / total,
-                    'negative_ratio': negative_count / total,
-                    'neutral_ratio': neutral_count / total,
-                    'confidence': max(positive_count, negative_count, neutral_count) / total
-                }
-            else:
-                return {'overall_sentiment': 'neutral', 'confidence': 0.0}
-                
+            return {
+                "polarity": polarity,
+                "subjectivity": subjectivity,
+                "sentiment": sentiment,
+                "confidence": confidence
+            }
+            
         except Exception as e:
             print(f"Error analyzing sentiment: {e}")
-            return {'overall_sentiment': 'neutral', 'confidence': 0.0}
+            return {
+                "polarity": 0.0,
+                "subjectivity": 0.5,
+                "sentiment": "neutral",
+                "confidence": 0.0
+            }
     
     def extract_topics(self, text: str) -> List[str]:
         """Extract main topics from text"""
