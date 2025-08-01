@@ -112,10 +112,10 @@ export function RecommendationFeed({ recommendations, isLoading }: Recommendatio
   if (!recommendations.length) {
     return (
       <div className="card text-center py-12">
-        <h3 className="text-lg font-medium text-secondary-900 mb-2">
+        <h3 className="text-lg font-medium text-gray-900 mb-2">
           No recommendations yet
         </h3>
-        <p className="text-secondary-600 mb-4">
+        <p className="text-gray-600 mb-4">
           We're learning your preferences. Check back soon for personalized content!
         </p>
       </div>

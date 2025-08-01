@@ -165,13 +165,18 @@ export function InterestGraph({ interests, isLoading }: InterestGraphProps) {
     return (
       <div className="card">
         <div className="text-center py-12">
-          <h3 className="text-lg font-medium text-secondary-900 mb-2">
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
             No interests yet
           </h3>
-          <p className="text-secondary-600 mb-4">
+          <p className="text-gray-600 mb-4">
             Add some interests to see your knowledge graph
           </p>
-          <button className="btn-primary">Add Interest</button>
+          <button 
+            onClick={() => alert('Add Interest functionality coming soon!')}
+            className="btn-primary"
+          >
+            Add Interest
+          </button>
         </div>
       </div>
     );

@@ -121,10 +121,13 @@ export default function Home() {
               <div className="p-6 border-b border-gray-200">
                 <div className="flex items-center justify-between">
                   <h2 className="text-xl font-semibold text-gray-900">Your Recommendations</h2>
-                  <button className="btn-primary">
+                  <button 
+                    onClick={() => alert('View All functionality coming soon!')}
+                    className="btn-primary"
+                  >
                     View All
-          </button>
-        </div>
+                  </button>
+                </div>
               </div>
               <RecommendationFeed 
                 recommendations={recommendations?.data || []}
@@ -137,9 +140,12 @@ export default function Home() {
               <div className="p-6 border-b border-gray-200">
                 <div className="flex items-center justify-between">
                   <h2 className="text-xl font-semibold text-gray-900">Your Interests</h2>
-                <button className="btn-primary">
-                  Add Interest
-                </button>
+                  <button 
+                    onClick={() => alert('Add Interest functionality coming soon!')}
+                    className="btn-primary"
+                  >
+                    Add Interest
+                  </button>
                 </div>
               </div>
               <InterestGraph 
