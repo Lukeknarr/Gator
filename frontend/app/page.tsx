@@ -17,6 +17,7 @@ import { InterestGraph } from '@/components/InterestGraph';
 import { RecommendationFeed } from '@/components/RecommendationFeed';
 import { OnboardingModal } from '@/components/OnboardingModal';
 import { LoginModal } from '@/components/LoginModal';
+import { RegisterModal } from '@/components/RegisterModal';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
 
@@ -24,6 +25,7 @@ export default function Dashboard() {
   const { user, isAuthenticated } = useAuth();
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
   const [activeTab, setActiveTab] = useState('recommendations');
 
   // Fetch user interests
@@ -57,12 +59,20 @@ export default function Dashboard() {
         <div className="text-center">
           <h1 className="text-4xl font-bold text-primary-600 mb-4">Welcome to Gator</h1>
           <p className="text-secondary-600 mb-8">Please log in to access your personalized dashboard</p>
-          <button 
-            onClick={() => setShowLogin(true)}
-            className="btn-primary"
-          >
-            Sign In
-          </button>
+          <div className="space-y-4">
+            <button 
+              onClick={() => setShowLogin(true)}
+              className="btn-primary w-full"
+            >
+              Sign In
+            </button>
+            <button 
+              onClick={() => setShowRegister(true)}
+              className="btn-secondary w-full"
+            >
+              Create Account
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -282,6 +292,20 @@ export default function Dashboard() {
       <LoginModal
         isOpen={showLogin}
         onClose={() => setShowLogin(false)}
+        onSwitchToRegister={() => {
+          setShowLogin(false);
+          setShowRegister(true);
+        }}
+      />
+
+      {/* Register Modal */}
+      <RegisterModal
+        isOpen={showRegister}
+        onClose={() => setShowRegister(false)}
+        onSwitchToLogin={() => {
+          setShowRegister(false);
+          setShowLogin(true);
+        }}
       />
     </div>
   );

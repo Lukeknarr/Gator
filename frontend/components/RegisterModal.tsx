@@ -2,34 +2,49 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, User, Lock, Eye, EyeOff } from 'lucide-react';
+import { X, User, Lock, Mail, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
-interface LoginModalProps {
+interface RegisterModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSwitchToRegister: () => void;
+  onSwitchToLogin: () => void;
 }
 
-export function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalProps) {
+export function RegisterModal({ isOpen, onClose, onSwitchToLogin }: RegisterModalProps) {
+  const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   
-  const { login } = useAuth();
+  const { register } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    // Validation
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      await login(username, password);
+      await register(email, username, password);
       onClose();
     } catch (error: any) {
-      setError(error.response?.data?.detail || 'Login failed. Please try again.');
+      setError(error.response?.data?.detail || 'Registration failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -53,7 +68,7 @@ export function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalPr
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-secondary-900">Sign In</h2>
+              <h2 className="text-2xl font-bold text-secondary-900">Create Account</h2>
               <button
                 onClick={onClose}
                 className="text-secondary-400 hover:text-secondary-600 transition-colors"
@@ -63,6 +78,24 @@ export function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalPr
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-secondary-700 mb-2">
+                  Email
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-secondary-400" />
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border border-secondary-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    placeholder="Enter your email"
+                    required
+                  />
+                </div>
+              </div>
+
               <div>
                 <label htmlFor="username" className="block text-sm font-medium text-secondary-700 mb-2">
                   Username
@@ -75,7 +108,7 @@ export function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalPr
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-secondary-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                    placeholder="Enter your username"
+                    placeholder="Choose a username"
                     required
                   />
                 </div>
@@ -93,7 +126,7 @@ export function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalPr
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full pl-10 pr-12 py-2 border border-secondary-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                    placeholder="Enter your password"
+                    placeholder="Create a password"
                     required
                   />
                   <button
@@ -102,6 +135,31 @@ export function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalPr
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-secondary-400 hover:text-secondary-600"
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-secondary-700 mb-2">
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-secondary-400" />
+                  <input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full pl-10 pr-12 py-2 border border-secondary-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    placeholder="Confirm your password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-secondary-400 hover:text-secondary-600"
+                  >
+                    {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
               </div>
@@ -117,18 +175,18 @@ export function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalPr
                 disabled={isLoading}
                 className="w-full bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {isLoading ? 'Signing In...' : 'Sign In'}
+                {isLoading ? 'Creating Account...' : 'Create Account'}
               </button>
             </form>
 
             <div className="mt-6 text-center">
               <p className="text-sm text-secondary-600">
-                Don't have an account?{' '}
+                Already have an account?{' '}
                 <button
-                  onClick={onSwitchToRegister}
+                  onClick={onSwitchToLogin}
                   className="text-primary-600 hover:text-primary-700 font-medium"
                 >
-                  Sign up
+                  Sign in
                 </button>
               </p>
             </div>
