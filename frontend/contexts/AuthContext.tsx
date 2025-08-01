@@ -82,8 +82,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password,
       });
       
-      // Auto-login after registration
-      await login(username, password);
+      // For mock backend, set the user directly and create a mock token
+      const user = response.data;
+      setUser(user);
+      localStorage.setItem('gator_token', 'mock_token_12345');
+      api.defaults.headers.common['Authorization'] = 'Bearer mock_token_12345';
     } catch (error) {
       console.error('Registration failed:', error);
       throw error;
