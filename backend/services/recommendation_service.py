@@ -1,77 +1,66 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import func, desc
+from sqlalchemy import desc, func
 from typing import List, Dict, Any
-from datetime import datetime, timedelta
+from datetime import datetime
 import random
 
-from models import User, Content, Tag, UserInterest, UserInteraction, Recommendation
+from models import User, UserInterest, Content, UserInteraction, Recommendation
 from schemas import ContentResponse, FeedbackRequest
 
 class RecommendationService:
     def __init__(self):
-        self.mock_vectorizer = "mock"
+        pass
     
     def get_recommendations(self, db: Session, user_id: int, limit: int = 20) -> List[ContentResponse]:
-        """Get mock personalized recommendations"""
-        # Get user interests
-        user_interests = db.query(UserInterest).filter(UserInterest.user_id == user_id).all()
-        interest_topics = [interest.topic for interest in user_interests]
-        
-        if not interest_topics:
-            # If no interests, return recent content
+        """Get personalized recommendations for user"""
+        try:
+            # Get user's interests
+            user_interests = db.query(UserInterest).filter(UserInterest.user_id == user_id).all()
+            
+            if not user_interests:
+                # If no interests, return recent content
+                return self._get_recent_content(db, limit)
+            
+            # Get interest topics
+            interest_topics = [interest.topic for interest in user_interests]
+            
+            # Get all content
+            all_content = db.query(Content).all()
+            
+            if not all_content:
+                return []
+            
+            # Calculate mock scores based on interests
+            content_scores = self._calculate_mock_scores(all_content, interest_topics)
+            
+            # Sort by score and limit
+            sorted_content = sorted(all_content, key=lambda x: content_scores.get(x.id, 0), reverse=True)
+            top_content = sorted_content[:limit]
+            
+            return [ContentResponse.from_orm(content) for content in top_content]
+            
+        except Exception as e:
+            print(f"Error getting recommendations: {e}")
             return self._get_recent_content(db, limit)
-        
-        # Get content with tags
-        content_with_tags = db.query(Content).join(Content.tags).all()
-        
-        if not content_with_tags:
-            return []
-        
-        # Calculate mock scores
-        mock_scores = self._calculate_mock_scores(content_with_tags, interest_topics)
-        
-        # Sort by score and get top recommendations
-        sorted_content = sorted(content_with_tags, key=lambda x: mock_scores.get(x.id, 0), reverse=True)
-        
-        # Store recommendations
-        for i, content in enumerate(sorted_content[:limit]):
-            recommendation = Recommendation(
-                user_id=user_id,
-                content_id=content.id,
-                score=mock_scores.get(content.id, 0),
-                algorithm="mock_hybrid"
-            )
-            db.add(recommendation)
-        
-        db.commit()
-        
-        return [ContentResponse.from_orm(content) for content in sorted_content[:limit]]
     
     def _calculate_mock_scores(self, content_list: List[Content], interest_topics: List[str]) -> Dict[int, float]:
-        """Calculate mock similarity scores"""
-        if not content_list:
-            return {}
-        
+        """Calculate mock recommendation scores based on interests"""
         scores = {}
         
         for content in content_list:
-            # Mock scoring based on simple text matching
             score = 0.0
+            content_text = f"{content.title or ''} {content.summary or ''}".lower()
             
-            # Combine content text
-            content_text = f"{content.title or ''} {content.summary or ''}"
-            content_text_lower = content_text.lower()
-            
-            # Check for interest topic matches
+            # Score based on interest matches
             for topic in interest_topics:
-                if topic.lower() in content_text_lower:
-                    score += 0.5
+                if topic.lower() in content_text:
+                    score += 0.3
             
-            # Add some randomness for variety
-            score += random.uniform(0, 0.3)
+            # Add some randomness
+            score += random.uniform(0, 0.2)
             
-            # Normalize score
-            score = min(1.0, score)
+            # Ensure score is between 0 and 1
+            score = min(1.0, max(0.0, score))
             scores[content.id] = score
         
         return scores
@@ -85,18 +74,14 @@ class RecommendationService:
         """Submit user feedback on content"""
         try:
             # Create interaction record
-        interaction = UserInteraction(
-            user_id=user_id,
-            content_id=feedback.content_id,
-                interaction_type=feedback.feedback_type,
-                rating=feedback.rating,
-                metadata={
-                    "feedback_text": feedback.feedback_text,
-                    "timestamp": datetime.utcnow().isoformat()
-                }
-        )
+            interaction = UserInteraction(
+                user_id=user_id,
+                content_id=feedback.content_id,
+                interaction_type=feedback.interaction_type,
+                duration=feedback.duration
+            )
             
-        db.add(interaction)
+            db.add(interaction)
             db.commit()
             
             # Update recommendation scores based on feedback
@@ -115,46 +100,42 @@ class RecommendationService:
         """Update recommendation scores based on feedback"""
         try:
             # Find existing recommendation
-        recommendation = db.query(Recommendation).filter(
-            Recommendation.user_id == user_id,
-            Recommendation.content_id == feedback.content_id
-        ).first()
-        
-        if recommendation:
+            recommendation = db.query(Recommendation).filter(
+                Recommendation.user_id == user_id,
+                Recommendation.content_id == feedback.content_id
+            ).first()
+            
+            if recommendation:
                 # Adjust score based on feedback
-                if feedback.feedback_type == "like":
+                if feedback.interaction_type == "like":
                     recommendation.score += 0.1
-                elif feedback.feedback_type == "dislike":
+                elif feedback.interaction_type == "dislike":
                     recommendation.score -= 0.1
-                elif feedback.feedback_type == "rating" and feedback.rating:
-                    # Normalize rating to 0-1 scale
-                    normalized_rating = feedback.rating / 5.0
-                    recommendation.score = normalized_rating
                 
                 # Ensure score stays within bounds
                 recommendation.score = max(0.0, min(1.0, recommendation.score))
-        
-        db.commit()
-        
+            
+            db.commit()
+            
         except Exception as e:
             print(f"Error updating recommendation scores: {e}")
     
     def get_exploration_recommendations(self, db: Session, user_id: int, limit: int = 10) -> List[ContentResponse]:
         """Get exploration recommendations (diverse content)"""
         try:
-        # Get user's current interests
-        user_interests = db.query(UserInterest).filter(UserInterest.user_id == user_id).all()
+            # Get user's current interests
+            user_interests = db.query(UserInterest).filter(UserInterest.user_id == user_id).all()
             current_topics = [interest.topic for interest in user_interests]
-        
+            
             # Get all content
-        all_content = db.query(Content).join(Content.tags).all()
+            all_content = db.query(Content).all()
             
             if not all_content:
                 return []
-        
+            
             # Find content that doesn't match current interests
             diverse_content = []
-        for content in all_content:
+            for content in all_content:
                 content_text = f"{content.title or ''} {content.summary or ''}".lower()
                 
                 # Check if content is different from current interests
@@ -170,7 +151,7 @@ class RecommendationService:
             # If no diverse content, return random content
             if not diverse_content:
                 diverse_content = random.sample(all_content, min(len(all_content), limit))
-        
+            
             # Limit results
             diverse_content = diverse_content[:limit]
             
@@ -187,7 +168,7 @@ class RecommendationService:
             trending_content = db.query(Content).join(UserInteraction).group_by(Content.id).order_by(
                 func.count(UserInteraction.id).desc()
             ).limit(limit).all()
-        
+            
             return [ContentResponse.from_orm(content) for content in trending_content]
             
         except Exception as e:
@@ -216,4 +197,4 @@ class RecommendationService:
             
         except Exception as e:
             print(f"Error getting personalized feed: {e}")
-            return [] 
+            return self.get_recommendations(db, user_id, limit) 

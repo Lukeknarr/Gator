@@ -25,14 +25,12 @@ from services.summarization_service import AISummarizationService
 from services.premium_service import PremiumService
 from services.connection_map_service import connection_map_service
 
-app = FastAPI(
-    title="Gator AI",
-    description="Personalized media discovery engine",
-    version="1.0.0"
-)
 
-@app.on_event("startup")
-async def startup_event():
+
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     """Initialize database tables on startup"""
     print("🚀 Gator backend starting up...")
     print(f"Environment: {os.getenv('ENVIRONMENT', 'development')}")
@@ -49,6 +47,15 @@ async def startup_event():
         print(f"⚠️  Warning: Could not create database tables: {e}")
     
     print("✅ Gator backend startup complete!")
+    yield
+    print("🛑 Gator backend shutting down...")
+
+app = FastAPI(
+    title="Gator AI",
+    description="Personalized media discovery engine",
+    version="1.0.0",
+    lifespan=lifespan
+)
 
 # CORS middleware
 cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:3001,https://gator-cqsf.vercel.app,https://gatorapp.vercel.app").split(",")
@@ -85,7 +92,7 @@ async def root():
 @app.get("/health")
 async def health_check():
     """Simple health check that doesn't depend on database"""
-    return {"status": "healthy", "message": "Gator backend is live!", "timestamp": "2024-08-01T22:30:00Z", "version": "DEPLOY_TEST_999"}
+    return {"status": "healthy", "message": "Gator backend is live!", "timestamp": "2024-08-01T23:55:00Z", "version": "PORT_FIX_001"}
 
 @app.get("/healthcheck")
 async def railway_healthcheck():

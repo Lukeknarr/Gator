@@ -10,12 +10,13 @@ load_dotenv()
 # PostgreSQL Configuration
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
-    print("❌ CRITICAL ERROR: DATABASE_URL environment variable is not set!")
+    print("⚠️  WARNING: DATABASE_URL environment variable is not set!")
     print("🔍 Available environment variables:")
     for key, value in os.environ.items():
         if "DATABASE" in key or "POSTGRES" in key or "DB" in key:
             print(f"  {key}: {value}")
-    raise RuntimeError("DATABASE_URL environment variable is required but not set")
+    print("🚀 Using SQLite for local development")
+    DATABASE_URL = "sqlite:///./gator.db"
 
 POSTGRES_URL = DATABASE_URL
 print(f"✅ DATABASE_URL found: {DATABASE_URL[:50]}...")
@@ -30,13 +31,18 @@ NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "password")
 neo4j_driver = None
 
 def get_engine():
-    """Lazy initialization of PostgreSQL engine"""
+    """Lazy initialization of database engine"""
     global engine
     if engine is None:
         try:
-            engine = create_engine(POSTGRES_URL)
+            # Use SQLite for local development if PostgreSQL is not available
+            if POSTGRES_URL.startswith("sqlite"):
+                engine = create_engine(POSTGRES_URL, connect_args={"check_same_thread": False})
+            else:
+                engine = create_engine(POSTGRES_URL)
+            print(f"✅ Database engine created successfully: {POSTGRES_URL}")
         except Exception as e:
-            print(f"Warning: Could not create PostgreSQL engine: {e}")
+            print(f"Warning: Could not create database engine: {e}")
             return None
     return engine
 

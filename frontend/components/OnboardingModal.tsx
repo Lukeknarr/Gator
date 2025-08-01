@@ -57,6 +57,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
   const [explorationLevel, setExplorationLevel] = useState('balanced');
   const [timeAvailability, setTimeAvailability] = useState('medium');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasFailed, setHasFailed] = useState(false);
 
   const handleInterestToggle = (interest: string) => {
     setSelectedInterests(prev => 
@@ -93,8 +94,9 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
     }
 
     setIsSubmitting(true);
+    setHasFailed(false);
     try {
-      await api.post('/onboarding', {
+      const response = await api.post('/onboarding', {
         interests: selectedInterests,
         reading_preferences: readingPreferences,
         time_availability: timeAvailability,
@@ -103,9 +105,22 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
 
       toast.success('Onboarding completed!');
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Onboarding failed:', error);
-      toast.error('Failed to complete onboarding');
+      setHasFailed(true);
+      
+      // Provide more specific error messages
+      if (error.response?.status === 401) {
+        toast.error('Authentication failed. Please log in again.');
+      } else if (error.response?.status === 500) {
+        toast.error('Server error. Please try again in a moment.');
+      } else if (error.response?.status === 400) {
+        toast.error('Invalid data. Please check your selections.');
+      } else if (!error.response) {
+        toast.error('Network error. Please check your connection.');
+      } else {
+        toast.error('Failed to complete onboarding. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -156,6 +171,24 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                 <X className="h-5 w-5 text-secondary-600" />
               </button>
             </div>
+
+            {/* Error Banner */}
+            {hasFailed && (
+              <div className="bg-red-50 border-l-4 border-red-400 p-4 mx-6 mt-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-red-700">
+                      Failed to complete onboarding. Please try again or contact support if the problem persists.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Progress Bar */}
             <div className="px-6 py-4">
@@ -369,13 +402,24 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                     <ArrowRight className="h-4 w-4 ml-2" />
                   </button>
                 ) : (
-                  <button
-                    onClick={handleSubmit}
-                    disabled={isSubmitting}
-                    className="btn-primary"
-                  >
-                    {isSubmitting ? 'Setting up...' : 'Complete Setup'}
-                  </button>
+                  <>
+                    {hasFailed && (
+                      <button
+                        onClick={handleSubmit}
+                        disabled={isSubmitting}
+                        className="btn-secondary"
+                      >
+                        {isSubmitting ? 'Retrying...' : 'Retry'}
+                      </button>
+                    )}
+                    <button
+                      onClick={handleSubmit}
+                      disabled={isSubmitting}
+                      className="btn-primary"
+                    >
+                      {isSubmitting ? 'Setting up...' : 'Complete Setup'}
+                    </button>
+                  </>
                 )}
               </div>
             </div>
