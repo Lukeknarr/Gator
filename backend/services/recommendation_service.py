@@ -7,8 +7,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 from datetime import datetime, timedelta
 
-from ..models import User, Content, Tag, UserInterest, UserInteraction, Recommendation
-from ..schemas import ContentResponse, FeedbackRequest
+from models import User, Content, Tag, UserInterest, UserInteraction, Recommendation
+from schemas import ContentResponse, FeedbackRequest
 
 class RecommendationService:
     def __init__(self):

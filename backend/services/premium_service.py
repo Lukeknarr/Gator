@@ -12,8 +12,10 @@ from urllib.parse import urljoin, urlparse
 import asyncio
 import aiohttp
 from sqlalchemy.orm import Session
-from ..models import Content, User, PremiumSubscription
-from ..database import get_db
+from fastapi import HTTPException, status
+
+from models import Content, User, PremiumSubscription
+from database import get_db
 
 class PremiumService:
     """

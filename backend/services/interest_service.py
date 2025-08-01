@@ -3,8 +3,8 @@ from typing import List, Dict, Any
 from datetime import datetime
 import json
 
-from ..models import User, UserInterest
-from ..schemas import UserOnboarding, InterestCreate, InterestResponse, UserDataExport
+from models import User, UserInterest
+from schemas import UserOnboarding, InterestCreate, InterestResponse, UserDataExport
 
 class InterestService:
     def complete_onboarding(self, db: Session, user: User, onboarding_data: UserOnboarding) -> User:

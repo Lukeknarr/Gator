@@ -3,8 +3,8 @@ from sqlalchemy import func, desc
 from typing import List, Dict, Any
 from datetime import datetime
 
-from ..models import Content, Tag, UserInteraction
-from ..schemas import ContentResponse, SearchRequest
+from models import Content, Tag, UserInteraction
+from schemas import ContentResponse, SearchRequest
 
 class ContentService:
     def get_content(self, db: Session, content_id: int) -> ContentResponse:

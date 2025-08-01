@@ -5,8 +5,8 @@ import re
 from nltk.tokenize import sent_tokenize
 import nltk
 from sqlalchemy.orm import Session
-from ..models import Content, ContentSummary
-from ..database import get_db
+from models import Content, ContentSummary
+from database import get_db
 from datetime import datetime
 
 class AISummarizationService:

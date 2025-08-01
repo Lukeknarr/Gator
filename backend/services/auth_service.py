@@ -7,9 +7,9 @@ from datetime import datetime, timedelta
 import os
 from typing import Optional
 
-from ..database import get_db
-from ..models import User
-from ..schemas import UserCreate, Token
+from database import get_db
+from models import User
+from schemas import UserCreate, Token
 
 # JWT Configuration
 SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-here")
