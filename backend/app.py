@@ -25,8 +25,16 @@ from services.summarization_service import AISummarizationService
 from services.premium_service import PremiumService
 from services.connection_map_service import connection_map_service
 
-# Create database tables
-Base.metadata.create_all(bind=engine)
+# Create database tables (only if database is available)
+try:
+    engine = get_engine()
+    if engine:
+        Base.metadata.create_all(bind=engine)
+        print("Database tables created successfully")
+    else:
+        print("Warning: Database not available, skipping table creation")
+except Exception as e:
+    print(f"Warning: Could not create database tables: {e}")
 
 app = FastAPI(
     title="Gator AI",
@@ -66,9 +74,26 @@ async def health_check():
     """Simple health check that doesn't depend on database"""
     return {"status": "healthy", "message": "Gator backend is live!", "timestamp": "2024-07-31T23:57:00Z"}
 
+@app.get("/health/db")
+async def database_health_check():
+    """Check database connectivity"""
+    try:
+        engine = get_engine()
+        if engine:
+            # Test PostgreSQL connection
+            with engine.connect() as conn:
+                conn.execute("SELECT 1")
+            return {"status": "healthy", "database": "connected"}
+        else:
+            return {"status": "unhealthy", "database": "not_available"}
+    except Exception as e:
+        return {"status": "unhealthy", "database": "error", "error": str(e)}
+
 @app.post("/register", response_model=UserResponse)
 async def register(user: UserCreate, db: Session = Depends(get_db)):
     """Register a new user"""
+    if db is None:
+        raise HTTPException(status_code=503, detail="Database not available")
     return auth_service.register_user(db, user)
 
 @app.post("/login", response_model=Token)
