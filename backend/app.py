@@ -55,6 +55,8 @@ cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost
 # Add Railway healthcheck hostname
 cors_origins.append("https://healthcheck.railway.app")
 
+print(f"🔧 CORS Origins: {cors_origins}")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
