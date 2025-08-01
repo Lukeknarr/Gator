@@ -149,18 +149,35 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
 @app.post("/onboarding", response_model=UserResponse)
 async def user_onboarding(
     onboarding_data: UserOnboarding,
+    current_user: User = Depends(auth_service.get_current_user),
     db: Session = Depends(get_db)
 ):
     """Complete user onboarding with initial interests"""
-    # Mock onboarding for demo purposes (works without authentication)
-    return UserResponse(
-        id=1,
-        email="user@example.com",
-        username="user",
-        is_active=True,
-        created_at=datetime.now(),
-        updated_at=datetime.now()
-    )
+    try:
+        # Save user interests to database
+        for interest in onboarding_data.interests:
+            interest_create = InterestCreate(
+                topic=interest,
+                weight=1.0,
+                source="onboarding"
+            )
+            interest_service.add_interest(db, current_user.id, interest_create)
+        
+        # For now, return the current user (we can extend this to save preferences later)
+        return UserResponse(
+            id=current_user.id,
+            email=current_user.email,
+            username=current_user.username,
+            is_active=current_user.is_active,
+            created_at=current_user.created_at,
+            updated_at=current_user.updated_at
+        )
+    except Exception as e:
+        print(f"Onboarding error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to complete onboarding. Please try again."
+        )
 
 @app.get("/interests", response_model=List[InterestResponse])
 async def get_user_interests(
