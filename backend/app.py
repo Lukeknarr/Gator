@@ -25,22 +25,24 @@ from services.summarization_service import AISummarizationService
 from services.premium_service import PremiumService
 from services.connection_map_service import connection_map_service
 
-# Create database tables (only if database is available)
-try:
-    engine = get_engine()
-    if engine:
-        Base.metadata.create_all(bind=engine)
-        print("Database tables created successfully")
-    else:
-        print("Warning: Database not available, skipping table creation")
-except Exception as e:
-    print(f"Warning: Could not create database tables: {e}")
-
 app = FastAPI(
     title="Gator AI",
     description="Personalized media discovery engine",
     version="1.0.0"
 )
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize database tables on startup"""
+    try:
+        engine = get_engine()
+        if engine:
+            Base.metadata.create_all(bind=engine)
+            print("Database tables created successfully")
+        else:
+            print("Warning: Database not available, skipping table creation")
+    except Exception as e:
+        print(f"Warning: Could not create database tables: {e}")
 
 # CORS middleware
 cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:3001").split(",")
