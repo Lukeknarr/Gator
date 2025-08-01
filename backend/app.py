@@ -52,6 +52,9 @@ async def startup_event():
 
 # CORS middleware
 cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:3001").split(",")
+# Add Railway healthcheck hostname
+cors_origins.append("https://healthcheck.railway.app")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
@@ -85,7 +88,12 @@ async def health_check():
 @app.get("/healthcheck")
 async def railway_healthcheck():
     """Dedicated healthcheck endpoint for Railway"""
-    return {"status": "ok", "service": "gator-backend"}
+    return {"status": "ok", "service": "gator-backend", "timestamp": "2024-07-31T23:57:00Z"}
+
+@app.get("/health")
+async def health_check():
+    """Simple health check that doesn't depend on database"""
+    return {"status": "healthy", "message": "Gator backend is live!", "timestamp": "2024-07-31T23:57:00Z"}
 
 @app.get("/health/db")
 async def database_health_check():
