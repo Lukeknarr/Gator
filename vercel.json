@@ -9,12 +9,6 @@
       "runtime": "nodejs18.x"
     }
   },
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "https://gator-api.up.railway.app/$1"
-    }
-  ],
   "env": {
     "NEXT_PUBLIC_API_URL": "https://gator-api.up.railway.app"
   },
