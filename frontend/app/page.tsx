@@ -223,7 +223,7 @@ export default function Dashboard() {
                 </button>
               </div>
               <RecommendationFeed 
-                recommendations={recommendations || []}
+                recommendations={recommendations?.data || []}
                 isLoading={recommendationsLoading}
               />
             </div>
@@ -239,7 +239,7 @@ export default function Dashboard() {
                 </button>
               </div>
               <InterestGraph 
-                interests={interests || []}
+                interests={interests?.data || []}
                 isLoading={interestsLoading}
               />
             </div>
