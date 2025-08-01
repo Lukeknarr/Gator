@@ -1,4 +1,4 @@
-# Ignore backend files
+# Ignore ALL backend and non-frontend files
 backend/
 data_ingestion/
 recommendation_engine/
@@ -11,16 +11,17 @@ __pycache__/
 .env
 .env.local
 .env.example
-
-# Ignore git and other files
+railway.toml
+backend/railway.toml
+backend/railway.json
 .git/
 .gitignore
 README.md
 QUICK_DEPLOY.md
 DEPLOYMENT.md
-railway.toml
-backend/railway.toml
-backend/railway.json
 
-# Only include frontend
-!frontend/ 
+# Only include frontend and root config files
+!frontend/
+!package.json
+!vercel.json
+!.vercelignore 
