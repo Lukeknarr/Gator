@@ -61,7 +61,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('gator_token', access_token);
       api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
       
-      await fetchUser();
+      // For mock backend, set a mock user instead of calling fetchUser
+      setUser({
+        id: 1,
+        email: username,
+        username: username,
+        is_active: true,
+        created_at: new Date().toISOString(),
+      });
     } catch (error) {
       console.error('Login failed:', error);
       throw error;
