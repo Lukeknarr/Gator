@@ -85,18 +85,18 @@ class RecommendationService:
         """Submit user feedback on content"""
         try:
             # Create interaction record
-            interaction = UserInteraction(
-                user_id=user_id,
-                content_id=feedback.content_id,
+        interaction = UserInteraction(
+            user_id=user_id,
+            content_id=feedback.content_id,
                 interaction_type=feedback.feedback_type,
                 rating=feedback.rating,
                 metadata={
                     "feedback_text": feedback.feedback_text,
                     "timestamp": datetime.utcnow().isoformat()
                 }
-            )
+        )
             
-            db.add(interaction)
+        db.add(interaction)
             db.commit()
             
             # Update recommendation scores based on feedback
@@ -115,12 +115,12 @@ class RecommendationService:
         """Update recommendation scores based on feedback"""
         try:
             # Find existing recommendation
-            recommendation = db.query(Recommendation).filter(
-                Recommendation.user_id == user_id,
-                Recommendation.content_id == feedback.content_id
-            ).first()
-            
-            if recommendation:
+        recommendation = db.query(Recommendation).filter(
+            Recommendation.user_id == user_id,
+            Recommendation.content_id == feedback.content_id
+        ).first()
+        
+        if recommendation:
                 # Adjust score based on feedback
                 if feedback.feedback_type == "like":
                     recommendation.score += 0.1
@@ -133,28 +133,28 @@ class RecommendationService:
                 
                 # Ensure score stays within bounds
                 recommendation.score = max(0.0, min(1.0, recommendation.score))
-                
-                db.commit()
-                
+        
+        db.commit()
+        
         except Exception as e:
             print(f"Error updating recommendation scores: {e}")
     
     def get_exploration_recommendations(self, db: Session, user_id: int, limit: int = 10) -> List[ContentResponse]:
         """Get exploration recommendations (diverse content)"""
         try:
-            # Get user's current interests
-            user_interests = db.query(UserInterest).filter(UserInterest.user_id == user_id).all()
+        # Get user's current interests
+        user_interests = db.query(UserInterest).filter(UserInterest.user_id == user_id).all()
             current_topics = [interest.topic for interest in user_interests]
-            
+        
             # Get all content
-            all_content = db.query(Content).join(Content.tags).all()
+        all_content = db.query(Content).join(Content.tags).all()
             
             if not all_content:
                 return []
-            
+        
             # Find content that doesn't match current interests
             diverse_content = []
-            for content in all_content:
+        for content in all_content:
                 content_text = f"{content.title or ''} {content.summary or ''}".lower()
                 
                 # Check if content is different from current interests
@@ -170,7 +170,7 @@ class RecommendationService:
             # If no diverse content, return random content
             if not diverse_content:
                 diverse_content = random.sample(all_content, min(len(all_content), limit))
-            
+        
             # Limit results
             diverse_content = diverse_content[:limit]
             
@@ -187,7 +187,7 @@ class RecommendationService:
             trending_content = db.query(Content).join(UserInteraction).group_by(Content.id).order_by(
                 func.count(UserInteraction.id).desc()
             ).limit(limit).all()
-            
+        
             return [ContentResponse.from_orm(content) for content in trending_content]
             
         except Exception as e:

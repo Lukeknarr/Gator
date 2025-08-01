@@ -328,4 +328,4 @@ class AISummarizationService:
             
         except Exception as e:
             print(f"Error getting summary: {e}")
-            return None 
+            return None

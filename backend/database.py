@@ -44,7 +44,7 @@ def get_neo4j_driver():
     global neo4j_driver
     if neo4j_driver is None:
         try:
-            neo4j_driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
+neo4j_driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
         except Exception as e:
             print(f"Warning: Could not create Neo4j driver: {e}")
             return None
@@ -55,11 +55,11 @@ def get_db():
     try:
         SessionLocal = get_session_local()
         if SessionLocal:
-            db = SessionLocal()
-            try:
-                yield db
-            finally:
-                db.close()
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
         else:
             yield None
     except Exception as e:
@@ -72,7 +72,7 @@ def get_neo4j_session():
         driver = get_neo4j_driver()
         if driver:
             with driver.session() as session:
-                yield session
+        yield session 
         else:
             yield None
     except Exception as e:
