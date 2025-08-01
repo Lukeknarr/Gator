@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://gator-production.up.railway.app',
+  baseURL: '/api',  // Use Next.js API proxy
   headers: {
     'Content-Type': 'application/json',
   },
