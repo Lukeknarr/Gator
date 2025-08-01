@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "https://gator-api.up.railway.app/$1"
+    }
+  ],
+  "env": {
+    "NEXT_PUBLIC_API_URL": "https://gator-api.up.railway.app"
+  },
+  "functions": {
+    "app/api/**/*.ts": {
+      "maxDuration": 30
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://gator-api.up.railway.app/$1"
+    }
+  ]
+} 
