@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 import jwt
 from passlib.context import CryptContext
 
-from database import get_db, engine
+from database import get_db, get_engine
 from models import Base, User, UserInterest, Content, UserInteraction
 from schemas import (
     UserCreate, UserResponse, UserLogin, Token, 
