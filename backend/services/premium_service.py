@@ -14,7 +14,7 @@ import aiohttp
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
-from models import Content, User, PremiumSubscription
+from models import Content, User
 from database import get_db
 
 class PremiumService:
@@ -44,12 +44,9 @@ class PremiumService:
         """Check if user has premium access"""
         try:
             db = next(get_db())
-            subscription = db.query(PremiumSubscription).filter(
-                PremiumSubscription.user_id == user_id,
-                PremiumSubscription.is_active == True
-            ).first()
-            
-            return subscription is not None
+            # The PremiumSubscription model is removed, so this will always return False
+            # If premium access is needed, it should be managed by a different mechanism
+            return False
             
         except Exception as e:
             print(f"Error checking premium access: {e}")

@@ -10,7 +10,7 @@ import jwt
 from passlib.context import CryptContext
 
 from database import get_db, engine
-from models import Base, User, UserInterest, Content, ContentTag, UserInteraction
+from models import Base, User, UserInterest, Content, UserInteraction
 from schemas import (
     UserCreate, UserResponse, UserLogin, Token, 
     InterestCreate, InterestResponse, ContentResponse,
