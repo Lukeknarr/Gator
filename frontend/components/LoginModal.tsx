@@ -11,7 +11,7 @@ interface LoginModalProps {
 
 export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalProps) {
   const { login } = useAuth();
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -22,9 +22,9 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
     setError('');
 
     try {
-      await login(email, password);
+      await login(username, password);
       onClose();
-      setEmail('');
+      setUsername('');
       setPassword('');
     } catch (error: any) {
       setError(error.response?.data?.detail || 'Login failed. Please try again.');
@@ -58,10 +58,10 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email address"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Email or username"
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
               />
