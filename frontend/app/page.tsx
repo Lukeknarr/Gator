@@ -44,7 +44,7 @@ export default function Dashboard() {
 
   // Check if user needs onboarding
   useEffect(() => {
-    if (isAuthenticated && user && (!interests || interests.length === 0)) {
+    if (isAuthenticated && user && (!interests?.data || interests.data.length === 0)) {
       setShowOnboarding(true);
     }
   }, [isAuthenticated, user, interests]);
@@ -111,7 +111,7 @@ export default function Dashboard() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-secondary-600">Interests</p>
                 <p className="text-2xl font-bold text-secondary-900">
-                  {interestsLoading ? '...' : interests?.length || 0}
+                  {interestsLoading ? '...' : interests?.data?.length || 0}
                 </p>
               </div>
             </div>
