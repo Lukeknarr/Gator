@@ -90,11 +90,6 @@ async def railway_healthcheck():
     """Dedicated healthcheck endpoint for Railway"""
     return {"status": "ok", "service": "gator-backend", "timestamp": "2024-07-31T23:57:00Z"}
 
-@app.get("/health")
-async def health_check():
-    """Simple health check that doesn't depend on database"""
-    return {"status": "healthy", "message": "Gator backend is live!", "timestamp": "2024-07-31T23:57:00Z"}
-
 @app.get("/health/db")
 async def database_health_check():
     """Check database connectivity"""
