@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from typing import List, Optional
 import uvicorn
+import os
 from datetime import datetime, timedelta
 import jwt
 from passlib.context import CryptContext
@@ -57,6 +58,10 @@ premium_service = PremiumService()
 @app.get("/")
 async def root():
     return {"message": "Gator API - Personalized Media Discovery Engine"}
+
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "message": "Gator backend is live!"}
 
 @app.post("/register", response_model=UserResponse)
 async def register(user: UserCreate, db: Session = Depends(get_db)):
